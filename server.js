@@ -20,10 +20,6 @@ function getPublicFile(str) {
     return path.join(__dirname, 'public', str);
 }
 
-function getViewsFile(str) {
-    return path.join('views', str);
-}
-
 const server = http.createServer((req, res) => {
     if (req.url === '/' && req.method === 'GET') {
         sendFile(res, getPublicFile('index.html'));
