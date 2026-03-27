@@ -1,0 +1,6 @@
+body .chat-container {
+    background-color: #ddd;
+    width: 50%;
+    height: 300px;
+    overflow: auto;
+}

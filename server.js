@@ -4,35 +4,43 @@ import fs from 'fs';
 import 'dotenv/config';
 import pug from 'pug';
 
+
 // get directory name
 import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// compiled views files
-function sendFile(res, filePath, code=200) {
-    res.writeHead(code, { 'Content-Type': 'text/html' });
-    const readStream = fs.createReadStream(filePath);
-    readStream.pipe(res);
-    res.end();
+function getStylesheet(fileName) {
+    return path.join(__dirname, 'public', 'stylesheet', `${fileName}.css`)
 }
 
-function getPublicFile(str) {
-    return path.join(__dirname, 'public', str);
+function getViewsFile(fileName) {
+    return path.join(__dirname, 'views', `${fileName}.pug`)
 }
+
+// for now simple read and write, no streams yet. Also blocking.
 
 const server = http.createServer((req, res) => {
-    if (req.url === '/' && req.method === 'GET') {
-        sendFile(res, getPublicFile('index.html'));
-    } else if (req.url === '/test' && req.method === 'GET') {
-        const index = pug.renderFile(path.join(__dirname, 'views', 'index.pug'), {
-            ip_address: req.headers['x-forwarded-for'] || req.socket.remoteAddress
-        });
-
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end(index);
-    } else {
-        sendFile(res, getPublicFile('not_found.html'), 404);
+    if (req.method === 'GET') {
+        switch (req.url) {
+            case '/':
+                const index = pug.renderFile(getViewsFile('index'));
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.write(index);
+                break;
+            case '/index.css':
+                const fileContent = fs.readFileSync(getStylesheet('index'), 'utf-8');
+                res.writeHead(200, { 'Content-Type': 'text/css' });
+                res.write(fileContent);
+                break;
+            default:
+                res.writeHead(404);
+                break;
+        }
+    } else if (req.method === 'POST') {
+        // wip
     }
+    
+    res.end();
 });
 
 const PORT = process.env.PORT || 3000

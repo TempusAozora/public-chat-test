@@ -14,5 +14,13 @@
   "dependencies": {
     "dotenv": "^17.3.1",
     "pug": "^3.0.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TempusAozora/public-chat-test.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TempusAozora/public-chat-test/issues"
+  },
+  "homepage": "https://github.com/TempusAozora/public-chat-test#readme"
 }
