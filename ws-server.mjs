@@ -11,8 +11,6 @@ export function createWebsocket(server) {
     server.on('upgrade', function(req, socket, header) {
         // no validation yet
         // socket.on('error', errorHandler);
-        console.log(header.toString())
-        
         if (req.url === '/index-ws') {
             wss.handleUpgrade(req, socket, header, function(ws) {
                 wss.emit('connection', ws, req);
@@ -24,15 +22,14 @@ export function createWebsocket(server) {
         console.log("Client connected.")
 
         ws.on('err', errorHandler);
-        console.log("WEBSOCKET DEBUG:", req.headers)
+        console.log("WEBSOCKET IP CHECK FOR DEBUGGING:", req.socket.remoteAddress);
 
         ws.on('message', async function(_data) {
             const data = JSON.parse(_data);
             const ip = !!req.headers['x-forwarded-for'] ? 
                 req.headers['x-forwarded-for'].split(/\s*,\s*/)[0] :
                 req.socket.remoteAddress;
-
-           
+            
             if (data.type === "chat_send_message") {
                 const msg = data.content;
                 if (msg.trim().length === 0) return;

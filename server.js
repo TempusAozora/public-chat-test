@@ -31,8 +31,6 @@ const server = http.createServer(async(req, res) => {
             case '/':
                 const chat_messages = await sql_query('get_message_history');
 
-                console.log("HTTP DEBUG:", req.headers)
-
                 const index = pug.renderFile(getViewsFile('index'), {chat_messages: chat_messages});
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.write(index);
