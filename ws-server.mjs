@@ -21,7 +21,6 @@ export function createWebsocket(server) {
         if (req.url === '/index-ws') {
             const ipToken = getCookie('ipToken', req);
             const ipData = jwt.decode(ipToken, process.env.IP_TOKEN_KEY);
-            console.log(ipData);
 
             wss.handleUpgrade(req, socket, header, function(ws) {
                 ws.ip = ipData.ip_address;
