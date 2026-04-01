@@ -1,4 +1,5 @@
-const wsUri = `ws://${location.host}/index-ws`;
+const websocket_protocol = (location.protocol === 'https:') ? 'wss:' : 'ws:';
+const wsUri = `${websocket_protocol}//${location.host}/index-ws`;
 const websocket = new WebSocket(wsUri);
 const chat_messages = window.CHAT_MESSAGES_DATA;
 const chat_container = document.getElementById('chat-container')
