@@ -30,6 +30,8 @@ export function createWebsocket(server) {
 
             if (data.type === "chat_send_message") {
                 const msg = data.content;
+                if (msg.trim().length === 0) return;
+
                 const timestamp_data = await sql_query('insert_message', [ip, msg]);
                 const message_data = {timestamp: timestamp_data[0].timestamp, message: msg};
                 update_chat(message_data);

@@ -9,6 +9,7 @@ function insert_message(msg_data) {
     const timestamp = (new Date(msg_data["timestamp"])).toLocaleString();
     message_data.innerHTML = `${timestamp} <span style="font-weight:bold;">Anonymous:</span> ${msg_data["message"]}`;
     chat_container.appendChild(message_data);
+    
 
     chat_container.scrollTop = chat_container.scrollHeight - chat_container.clientHeight
 }
@@ -20,7 +21,10 @@ function sendMessage() {
         content: message
     });
 
-    websocket.send(data);
+    if (message.trim().length > 0) {
+        websocket.send(data);
+        document.getElementById("message").value = '';
+    }
 }
 
 // handle messages
@@ -28,6 +32,7 @@ websocket.onmessage = function(event) {
     const data = JSON.parse(event.data);
     chat_messages.push(data);
     insert_message(data);
+
 }
 
 // load saved message data
