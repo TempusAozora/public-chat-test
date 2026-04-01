@@ -11,6 +11,7 @@ export function createWebsocket(server) {
     server.on('upgrade', function(req, socket, header) {
         // no validation yet
         // socket.on('error', errorHandler);
+        console.log(header.toString())
         
         if (req.url === '/index-ws') {
             wss.handleUpgrade(req, socket, header, function(ws) {
@@ -30,6 +31,7 @@ export function createWebsocket(server) {
                 req.headers['x-forwarded-for'].split(/\s*,\s*/)[0] :
                 req.socket.remoteAddress;
 
+            console.log(req)
             if (data.type === "chat_send_message") {
                 const msg = data.content;
                 if (msg.trim().length === 0) return;
