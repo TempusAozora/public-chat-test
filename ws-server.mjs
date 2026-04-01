@@ -11,9 +11,6 @@ export function createWebsocket(server) {
     server.on('upgrade', function(req, socket, header) {
         // no validation yet
         // socket.on('error', errorHandler);
-        console.log('x-forwarded-for:', req.headers['x-forwarded-for']);
-        console.log('x-real-ip:', req.headers['x-real-ip']);
-        console.log('remoteAddress:', req.socket.remoteAddress);
 
         if (req.url === '/index-ws') {
             wss.handleUpgrade(req, socket, header, function(ws) {
