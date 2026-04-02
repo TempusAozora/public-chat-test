@@ -54,7 +54,8 @@ export function createWebsocket(server) {
 
     function update_chat(message_data) {
         wss.clients.forEach(client => {
-            if (client.readyState === WebSocket.CLOSED) return;
+            // WebSocket.CLOSED is 3, Idk why I'm getting error 'ReferenceError: WebSocket is not defined'
+            if (client.readyState === 3) return;
             client.send(JSON.stringify(message_data))
         });
     }

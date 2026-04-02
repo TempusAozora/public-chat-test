@@ -10,7 +10,6 @@ import pug from 'pug';
 
 // get directory name
 import { fileURLToPath } from 'node:url';
-import { verify } from 'node:crypto';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function getStylesheet(fileName) {
