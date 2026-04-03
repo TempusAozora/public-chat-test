@@ -9,6 +9,8 @@ CREATE TABLE public.chat_messages
     CONSTRAINT chat_messages_pkey PRIMARY KEY (id)
 );
 
+ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+
 CREATE VIEW public.public_chat_data AS
 SELECT tstamp, msg
 FROM chat_messages;
@@ -22,5 +24,7 @@ CREATE TABLE public.anon_data
     ip_hashed bytea NOT NULL,
     CONSTRAINT anon_data_pkey PRIMARY KEY (id)
 );
+
+ALTER TABLE public.anon_data ENABLE ROW LEVEL SECURITY;
 
 CREATE UNIQUE INDEX anon_encrypted_unique on anon_data (ip_hashed);
