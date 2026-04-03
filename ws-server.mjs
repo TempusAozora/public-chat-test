@@ -1,5 +1,5 @@
 import { WebSocketServer } from 'ws';
-import { sql_query } from './modules/sql_handler.mjs';
+import { sql_query, sql_transaction } from './modules/sql_handler.mjs';
 import jwt from 'jsonwebtoken';
 
 function errorHandler(err) {
@@ -19,11 +19,16 @@ export function createWebsocket(server) {
         // socket.on('error', errorHandler);
 
         if (req.url === '/index-ws') {
-            const ipToken = getCookie('ipToken', req);
-            const ipData = jwt.decode(ipToken, process.env.IP_TOKEN_KEY);
+            const anon_id = getCookie('anon_id', req);
+            if (!anon_id) {
+                // custom logic soon
+                console.error("cookies disabled detected. Not allowing the chat feature.");
+                return
+            }
+            const tokenData = jwt.decode(anon_id, process.env.ANON_ID_KEY);
 
             wss.handleUpgrade(req, socket, header, function(ws) {
-                ws.ip = ipData.ip_address;
+                ws.anon_id = tokenData.anon_id;
                 wss.emit('connection', ws, req);
             });
         }
@@ -41,7 +46,7 @@ export function createWebsocket(server) {
                 const msg = data.content;
                 if (msg.trim().length === 0) return;
 
-                const timestamp_data = await sql_query('insert_message', [ws.ip, msg]);
+                const timestamp_data = await sql_transaction('insert_message', [[ws.anon_id], [ws.anon_id, msg]]);
                 const message_data = {timestamp: timestamp_data[0].timestamp, message: msg};
                 update_chat(message_data);
             }

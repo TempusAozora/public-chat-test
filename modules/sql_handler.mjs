@@ -26,13 +26,46 @@ const dbPool = new Pool(process.env.DB_CONNECTION_STRING ?
 });
 
 export async function sql_query(filename, params) {
-    const _qry = await readFile(path.join('sql', `${filename}.sql`));
-    const qry = _qry.toString()
+    try {
+        const _qry = await readFile(path.join('sql', `${filename}.sql`));
+        const qry = _qry.toString()
 
-    let result;
-    if (!!params) result = await dbPool.query(qry, params);
-    else result = await dbPool.query(qry);
+        let result;
+        if (!!params) result = await dbPool.query(qry, params);
+        else result = await dbPool.query(qry);
 
-    return result.rows;
+        return result.rows;
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+export async function sql_transaction(filename, _params) {
+    const client = await dbPool.connect()
+    const _transaction = await readFile(path.join('sql', `${filename}.sql`));
+    const transaction = _transaction.toString()
+
+    let queries = transaction.split(/\s*;\s*/).slice(0, -2);
+    queries.shift()
+
+    const params = _params.map(param => param === undefined ? [] : param);
+
+    try {
+        await client.query('BEGIN;')
+
+        for (let i=0; i<queries.length-1; i++) {
+            await client.query(`${queries[i]};`, params[i]);
+        }
+
+        const result = await client.query(`${queries[queries.length-1]};`, params[queries.length-1]);
+        await client.query('COMMIT;');
+
+        return result && result.rows;
+    } catch(e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+    } finally {
+        client.release();
+    }
 }
 

@@ -2,11 +2,16 @@ import http from 'http';
 import path from 'path';
 import fs from 'fs/promises';
 import { createWebsocket } from './ws-server.mjs';
-import { sql_query } from './modules/sql_handler.mjs';
+import { sql_query, sql_transaction } from './modules/sql_handler.mjs';
 import jwt from 'jsonwebtoken';
+import { encrypt_ip } from './modules/encryption.mjs';
 
 import 'dotenv/config';
 import pug from 'pug';
+import { createHash } from 'crypto';
+
+const hash_algo = 'sha256'
+const MONTH = 2629743 // seconds
 
 // get directory name
 import { fileURLToPath } from 'node:url';
@@ -35,7 +40,7 @@ function createCookie(key, value, req, res, expiration_time=-1) {
     const secureFlag = req.socket.encrypted ? 'Secure;' : '';
 
     let expiration;
-    if (expiration === -1) {
+    if (expiration_time === -1) {
         expiration = '';
     } else {
         const now = new Date();
@@ -49,6 +54,20 @@ function createCookie(key, value, req, res, expiration_time=-1) {
     res.setHeader('Set-Cookie', cookieHeader);
 }
 
+async function extract_id_token(ip_encrypted, ip_hashed) {
+    const uuid = await sql_transaction('get_anon_data', [[ip_hashed], [], [ip_encrypted, ip_hashed]]);
+    
+    const json_data = {anon_id: uuid[0].uuid}
+    return jwt.sign(json_data, process.env.ANON_ID_KEY);
+}
+
+
+async function verifyToken(token,key) {
+   return new Promise((resolve,reject) =>
+      jwt.verify(token,key,(err,decoded) => err ? reject(false) : resolve(decoded))
+   );
+}
+
 // for now simple read and write, no streams yet. Also blocking.
 
 const server = http.createServer(async(req, res) => {
@@ -56,21 +75,21 @@ const server = http.createServer(async(req, res) => {
         switch (req.url) {
             case '/':
                 const chat_messages = await sql_query('get_message_history');
-                const json_data = {
-                    ip_address: req.headers['x-forwarded-for'] && req.headers['x-forwarded-for'].split(',')[0].trim() || req.socket.remoteAddress,
-                }
-                
-                let ipToken = getCookie('ipToken', req);
-                if (!ipToken) {
-                    ipToken = jwt.sign(json_data, process.env.IP_TOKEN_KEY, {expiresIn: '1m'});
-                    createCookie('ipToken', ipToken, req, res, 60);
-                } else {
-                    jwt.verify(ipToken, process.env.IP_TOKEN_KEY, (err) => {
-                        if (!err) return;
+                const ip = req.headers['x-forwarded-for'] && req.headers['x-forwarded-for'].split(',')[0].trim() || req.socket.remoteAddress
+                const ip_hashed = createHash(hash_algo, process.env.HASHED_IP_KEY).update(ip).digest('base64');
+                const ip_encrypted = encrypt_ip(ip);
 
-                        console.error("Token validation failed:", err);
-                        createCookie('ipToken', ipToken, req, res, 60);
-                    });
+                let anon_id = getCookie('anon_id', req);
+                if (!anon_id) {
+                    const ip_encrypted = encrypt_ip(ip);
+                    const token = await extract_id_token(ip_encrypted, ip_hashed)
+                    createCookie('anon_id', token, req, res, MONTH);
+                } else {
+                    const decoded = await verifyToken(anon_id, process.env.ANON_ID_KEY).catch(err => {console.error("Token validation failed")});
+                    if (!decoded) {
+                        const token = await extract_id_token(ip_encrypted, ip_hashed);
+                        createCookie('anon_id', token, req, res, MONTH);
+                    }
                 }
 
                 const index = pug.renderFile(getViewsFile('index'), {chat_messages: chat_messages});
