@@ -10,5 +10,5 @@ BEGIN;
         VALUES (current_setting('anon.id')::uuid, decode($1, 'base64'), decode($2, 'base64'))
         ON CONFLICT (ip_hashed) DO NOTHING;
 
-    SELECT current_setting('anon.id')::uuid AS uuid;
+    SELECT current_setting('anon.id')::uuid AS anon_id;
 COMMIT;

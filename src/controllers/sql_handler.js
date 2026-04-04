@@ -1,7 +1,11 @@
 import { Pool } from 'pg';
-import 'dotenv/config';
 import { readFile } from 'node:fs/promises';
-import path from 'path';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import 'dotenv/config';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const sql_dir = path.join(__dirname, '..', 'sql');
 
 export const sql_pool = new Pool(process.env.DB_URL ? 
     {
@@ -13,7 +17,7 @@ export const sql_pool = new Pool(process.env.DB_URL ?
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DBNAME,
     }
-)
+);
 
 const dbPool = new Pool(process.env.DB_CONNECTION_STRING ? 
     {       // production environment
@@ -27,11 +31,11 @@ const dbPool = new Pool(process.env.DB_CONNECTION_STRING ?
 
 export async function sql_query(filename, params) {
     try {
-        const _qry = await readFile(path.join('sql', `${filename}.sql`));
-        const qry = _qry.toString()
+        const _qry = await readFile(path.join(sql_dir, 'queries', `${filename}.sql`));
+        const qry = _qry.toString();
 
         let result;
-        if (!!params) result = await dbPool.query(qry, params);
+        if (params) result = await dbPool.query(qry, params);
         else result = await dbPool.query(qry);
 
         return result.rows;
@@ -40,18 +44,18 @@ export async function sql_query(filename, params) {
     }
 }
 
-export async function sql_transaction(filename, _params) {
-    const client = await dbPool.connect()
-    const _transaction = await readFile(path.join('sql', `${filename}.sql`));
-    const transaction = _transaction.toString()
+export async function sql_transaction(filename, _params, get_first_row=false) {
+    const client = await dbPool.connect();
+    const _transaction = await readFile(path.join(sql_dir, 'transactions', `${filename}.sql`));
+    const transaction = _transaction.toString();
 
     let queries = transaction.split(/\s*;\s*/).slice(0, -2);
-    queries.shift()
+    queries.shift();
 
     const params = _params.map(param => param === undefined ? [] : param);
 
     try {
-        await client.query('BEGIN;')
+        await client.query('BEGIN;');
 
         for (let i=0; i<queries.length-1; i++) {
             await client.query(`${queries[i]};`, params[i]);
@@ -60,7 +64,7 @@ export async function sql_transaction(filename, _params) {
         const result = await client.query(`${queries[queries.length-1]};`, params[queries.length-1]);
         await client.query('COMMIT;');
 
-        return result && result.rows;
+        if (result) return get_first_row && result.rows[0] || result.rows;
     } catch(e) {
         await client.query('ROLLBACK');
         console.error(e);
