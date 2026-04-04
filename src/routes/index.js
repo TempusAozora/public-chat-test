@@ -1,9 +1,9 @@
 import express from 'express';
 import { sql_query, sql_transaction } from '../controllers/sql_handler.js';
-import { hash } from '../controllers/hashing.js';
+import { hash } from '../controllers/crypto_hash.js';
 import { encrypt } from '../controllers/encryption.js';
 import jwt from '../controllers/jwt_promises.js';
-import { parseCookies, tokenCookies } from '../controllers/cookies.js';
+import { parseCookies, tokenCookies } from '../controllers/jwt_cookies.js';
 
 const router = express.Router();
 

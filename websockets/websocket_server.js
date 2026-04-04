@@ -1,6 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { sql_transaction } from '../src/controllers/sql_handler.js';
-import { parseCookies } from '../src/controllers/cookies.js';
+import { parseCookies } from '../src/controllers/jwt_cookies.js';
 import 'dotenv/config';
 
 function errorHandler(err) {
