@@ -13,6 +13,7 @@
   "type": "module",
   "dependencies": {
     "dotenv": "^17.3.1",
+    "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.20.0",
     "pug": "^3.0.4",
@@ -25,5 +26,10 @@
   "bugs": {
     "url": "https://github.com/TempusAozora/public-chat-test/issues"
   },
-  "homepage": "https://github.com/TempusAozora/public-chat-test#readme"
+  "homepage": "https://github.com/TempusAozora/public-chat-test#readme",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.0",
+    "globals": "^17.4.0"
+  }
 }

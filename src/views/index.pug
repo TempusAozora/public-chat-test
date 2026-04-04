@@ -1,0 +1,21 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title Freedom Chat
+        link(rel="stylesheet", href="/stylesheet/index.css")
+
+        script.
+            window.CHAT_MESSAGES_DATA = JSON.parse(`!{JSON.stringify(chat_messages)}`);
+    body 
+        h1 Freedom Chat
+        div(id='chat-container')
+        br
+        input(type="text", id="message", placeholder="Chat here") 
+        button(onclick="sendMessage()") send
+        h3 Privacy Policy
+        p You are currently anonymous. Your IP address will be collected upon visit, but rest assured it is ENCRYPTED, HASHED, and it will only be tracked for debugging purposes, or in cases of abuse or violation of anti-cybercrime law and other laws. Will be adding 'I consent' popup soon. Also planning for removal of ip data after 7 days of inactivity. 
+        a(href="https://github.com/TempusAozora/public-chat-test" target="_blank") Github repository
+
+        script(src="/javascript/index.js")

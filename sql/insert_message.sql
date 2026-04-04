@@ -1,1 +1,0 @@
-SELECT insert_message($1, $2) AS "timestamp"; -- insert message then return timestamp
