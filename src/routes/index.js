@@ -16,7 +16,6 @@ router.get("/", async (req, res) => {
     const ip_encrypted = encrypt(req.ip, process.env.ENCRYPTED_IP_KEY);
 
     const anon_token = req.token_cookie.anon_token;
-    console.log("http: ", req.headers['x-forwarded-for']); // DEBUGGING ONLY. WILL BE DELETED
 
     if (!anon_token) {
         const anon_data = await sql_transaction('get_anon_data', [[ip_hashed], [], [ip_encrypted, ip_hashed]], true);

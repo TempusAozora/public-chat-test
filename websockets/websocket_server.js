@@ -11,7 +11,6 @@ export function createWebsocket(server) {
     const wss = new WebSocketServer({noServer: true});
 
     server.on('upgrade', async function(req, socket, header) {
-        console.log("websocket: ", req.headers['x-forwarded-for']); // DEBUGGING ONLY. WILL BE DELETED
         socket.on('error', errorHandler);
         await (parseCookies(process.env.COOKIE_KEY, true))(req);
 
