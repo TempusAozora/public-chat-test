@@ -8,7 +8,8 @@ BEGIN;
 
     INSERT INTO anon_data (anon_id, ip_encrypted, ip_hashed)
         VALUES (current_setting('anon.id')::uuid, decode($1, 'base64'), decode($2, 'base64'))
-        ON CONFLICT (ip_hashed) DO NOTHING;
+        ON CONFLICT (ip_hashed) DO UPDATE
+        SET anon_id = current_setting('anon.id')::uuid;
 
     SELECT current_setting('anon.id')::uuid AS anon_id;
 COMMIT;
