@@ -6,17 +6,19 @@ html(lang="en")
         title Freedom Chat
         link(rel="stylesheet", href="/stylesheet/index.css")
 
-        script.
-            window.CHAT_MESSAGES_DATA = JSON.parse(`!{JSON.stringify(chat_messages)}`);
-    body 
+        link(rel="preconnect", href="https://fonts.googleapis.com")
+        link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin)
+        link(href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap", rel="stylesheet")
+    body
         h1 Freedom Chat
         div(id='chat-container')
         br
-        input(type="text", id="message", placeholder="Chat here") 
+        input(type="text", id="message", placeholder="Chat here")
+        br
         button(onclick="sendMessage()") send
-        h3 Privacy Policy
-        p You are currently anonymous. Your IP address will be collected upon visit, but rest assured it is ENCRYPTED, HASHED, and it will only be tracked for debugging purposes, or in cases of abuse or violation of anti-cybercrime law and other laws. Will be adding 'I consent' popup soon. Also planning for removal of ip data after 7 days of inactivity. 
-        a(href="https://github.com/TempusAozora/public-chat-test" target="_blank") Github repository
+        p(id="notification-message")
         p(id="current-viewer-count") Current viewers: !{current_viewers}
-
+        br
+        p Privacy Policy in this site is work in progress. To see the current privacy policy, visit the github repository.
+        a(href="https://github.com/TempusAozora/public-chat-test" target="_blank") Github repository
         script(src="/javascript/index.js")
