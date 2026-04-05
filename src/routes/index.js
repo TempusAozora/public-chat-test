@@ -16,6 +16,8 @@ router.get("/", async (req, res) => {
     const ip_encrypted = encrypt(req.ip, process.env.ENCRYPTED_IP_KEY);
 
     const anon_token = req.token_cookie.anon_token;
+    console.log("http: ", req.headers['x-forwarded-for']); // DEBUGGING ONLY. WILL BE DELETED
+
     if (!anon_token) {
         const anon_data = await sql_transaction('get_anon_data', [[ip_hashed], [], [ip_encrypted, ip_hashed]], true);
         res.cookie('anon_token', anon_data.anon_id, {httpOnly: true, secure: req.socket.encrypted});
@@ -26,8 +28,11 @@ router.get("/", async (req, res) => {
             res.cookie('anon_token', anon_data.anon_id, {httpOnly: true, secure: req.socket.encrypted});
         }
     }
-
-    res.render('index', {chat_messages: chat_messages});
+    
+    res.render('index', {
+        chat_messages: chat_messages,
+        // current_viewers: get_viewer_count + 1
+    });
 });
 
 export default router;
